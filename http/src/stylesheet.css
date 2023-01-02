@@ -1,0 +1,147 @@
+body {
+	text-align: center;
+	font-family: sans-serif;
+}
+#statusout {
+	font-weight: bold;
+	color: red;
+}
+#maintab {
+	text-align: center;
+	width: 90vw;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 80px;
+}
+#maintab th {
+	background-color: gray;
+	font-weight: bold;
+}
+table,th,tr,td {
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+td,th {
+	padding: 10px;
+}
+summary {
+	font-size: 20px;
+}
+#audiooo {
+	position: absolute;
+	top: 0px;
+	left: 10px;
+}
+#mainmap {
+	width: 50vw;
+	height: 320px;
+	margin-right: auto;
+	margin-left: auto;
+}
+.diricon {
+	float: left;
+	width: 24px;
+}
+.det_head {
+	width: 90%;
+	margin-right: auto;
+	margin-left: auto;
+}
+.det_head td, .det_head th {
+	text-align: center;
+	padding: 5px;
+}
+.modal {
+	max-width: 90vw;
+	text-align: center;
+	min-height: 60vh;
+}
+.outtabhead {
+	background-color: gray;
+}
+.outtabs {
+	margin: 50px;
+	min-height: 400px;
+	min-width: 400px;
+}
+#outbox {
+	display: flex;
+	justify-content: space-around;
+	flex-wrap: wrap;
+}
+.mainsel {
+	margin: 25px;
+}
+#posmap {
+	margin: 50px;
+	width: 25vw;
+	background-color:gray;
+	min-height: 400px;
+}
+.leaflet-pseudo-fullscreen {
+	margin: 0px !important;
+}
+#fullsearch, #searchbutton {
+	margin-top: 50px;
+	border-radius: 0px;
+	border: solid 1px black;
+	padding: 10px;
+	font-size: 20px;
+}
+#fullsearch {
+	min-width: 40vw;
+}
+#fullsearch:focus {
+	border: solid 3px black;
+	outline: none;
+	margin-top: -2px;
+}
+#searchbutton {
+	background-color: #9cf;
+	margin-left: -1px;
+	min-width: 10vw;
+}
+#searchbutton:hover {
+	background-color: #3399ff;
+}
+.stats {
+	position: absolute;
+	right: 15px;
+	text-align: left;
+	font-family: monospaced;
+}
+pre {
+    display: inline;
+    margin: 0;
+}
+
+/*JS View*/
+.jsonviewul {
+	text-align: left;
+	list-style-type: none;
+	font-family: monospace;
+}
+.caret {
+	cursor: pointer;
+	user-select: none;
+}
+.caret::before {
+	content: "\25B6";
+	color: #bfbfbf;
+	display: inline-block;
+	margin-right: 6px;
+	transition: transform 0.4s;
+}
+.caret-down::before {
+	transform: rotate(90deg);
+}
+.nested {
+	display: none;
+}
+.active {
+	display: block;
+}
+.jsonkey {
+	color: #0099cc;
+}
+/*JS View End*/

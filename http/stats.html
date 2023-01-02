@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="refresh" content="600; URL=stats.html">
+	<title>Stats</title>
+	<script src="src/spinner.min.js"></script>
+	<script src="src/lib/jquery.min.js"></script>
+	<script src="src/lib/jquery.flot.min.js"></script>
+	<style>
+		body {
+			text-align: center;
+			font-family: sans-serif;
+		}
+		.background {
+			opacity: 0.5;
+			fill: gray;
+		}
+		.graphcon {
+			width:80vw;
+			height:600px;
+			margin: 25px;
+			margin-right: auto;
+			margin-left: auto;
+			margin-bottom: 100px;
+			padding-bottom: 10px !important;
+		}
+		table {
+			width: 50vw;
+			margin-left: auto;
+			margin-right: auto;
+			margin-bottom: 50px;
+		}
+		table,tr,th,td {
+			border: solid 1px black;
+			border-collapse: collapse;
+			padding: 5px;
+		}
+	</style>
+</head>
+<body>
+<h1>Statistics</h1>
+<h2>Messages by Frequency</h2>
+Show last: 
+<select autocomplete="off" onchange="freqgraph(this.value);">
+	<option value="3600" selected>1h</option>
+	<option value="7200">2h</option>
+	<option value="21600">6h</option>
+	<option value="43200">12h</option>
+	<option value="86400">24h</option>
+	<option value="172800">48h</option>
+	<option value="172800">48h</option>
+	<option value="604800">1 Week</option>
+</select>
+<div id="graph-freq" class="graphcon"></div>
+<h2>Messages by Time</h2>
+<div id="graph-msgs" class="graphcon"></div>
+
+
+<h2>Signal / Noise Level</h2>
+<div id="graph-sn" class="graphcon"></div>
+
+<h2>System Statistics</h2>
+<table id="sysinfotab">
+	<tr><th>Hostname</th><td id="sys-hn"></td></tr>
+	<tr><th>Local IP</th><td id="sys-lip"></td></tr>
+	<tr><th>Remote IP</th><td id="sys-rip"></td></tr>
+	<tr><th>Uptime</th><td id="sys-ut"></td></tr>
+	<tr><th colspan="2">CPU</th></tr>
+	<tr><th>Load</th><td id="sys-cl"></td></tr>
+	<tr><th>Phys. Cores</th><td id="sys-cpc"></td></tr>
+	<tr><th>Log. Cores</th><td id="sys-clc"></td></tr>
+	<tr><th>Frequency</th><td id="sys-cf"></td></tr>
+	<tr><th>Max. Freq</th><td id="sys-cmf"></td></tr>
+	<tr><th>Temperature</th><td id="sys-ct"></td></tr>
+	<tr><th colspan="2">Memory</th></tr>
+	<tr><th>RAM Useage</th><td id="sys-ru"></td></tr>
+	<tr><th>SWAP Useage</th><td id="sys-su"></td></tr>
+	<tr><th colspan="2">Disk Useage</th></tr>
+</table>
+
+<script>
+	function freqgraph(duration) {
+		document.getElementById('graph-freq').innerHTML = "";
+		var data = {'duration': duration};
+		$.getJSON('cgi-bin/freqstats.py',data,function(d) {
+			if (d.mode == 'HFDL') {
+				var mpdudata = [];
+				var spdudata = [];
+				var lpdudata = [];
+				var hfnpdudata = [];
+				for (f in d.data) {
+					var x = d['data'][f];
+					mpdudata.push([String(f/1e6)+'MHz',x.mpdu]);
+					spdudata.push([String(f/1e6)+'MHz',x.spdu]);
+					lpdudata.push([String(f/1e6)+'MHz',x.lpdu]);
+					hfnpdudata.push([String(f/1e6)+'MHz',x.hfnpdu]);
+				}
+				var graphdata = [
+					{data:mpdudata,label:"MPDU",color:"#ffccff"},
+					{data:spdudata,label:"SPDU",color:"#ccff99"},
+					{data:lpdudata,label:"LPDU",color:"#ffff99"},
+					{data:hfnpdudata,label:"HFNPDU",color:"#99ccff"}
+				];
+			}
+			if (d.mode == 'VDL2') {
+				var acarsdata = [];
+				var xiddata   = [];
+				var x25data   = [];
+				var otherdata = [];
+				for (f in d.data) {
+					var x = d['data'][f];
+					acarsdata.push([String(f/1e6)+'MHz',x.acars]);
+					xiddata.push([String(f/1e6)+'MHz',x.xid]);
+					x25data.push([String(f/1e6)+'MHz',x.x25]);
+					otherdata.push([String(f/1e6)+'MHz',x.other])
+				}
+				var graphdata = [
+					{data:acarsdata,label:"ACARS",color:"#ffcc99"},
+					{data:xiddata,label:"XID",color:"#00ccff"},
+					{data:x25data,label:"X25",color:"#99ccff"},
+					{data:otherdata,label:"Other",color:"#cc6699"}
+				];
+			}
+			
+			$.plot("#graph-freq", graphdata, {
+				series: {
+					stack: true,
+					bars: {
+						show: true,
+						barWidth: 0.6,
+						align: "center"
+					}
+				},
+				legend: {
+					position: "ne",
+					show: true,
+					backgroundColor: "white",
+					margin: 10
+				},
+				xaxis: {
+					mode: "categories",
+					showTicks: false,
+					gridLines: false
+				},
+			yaxis: {
+				//mode: "log"
+			}
+			});
+		});
+	}
+
+	function parse(d) {
+		//sysinfo
+		document.getElementById('sys-hn').innerHTML  =  String(d.sysinfo.hostname);
+		document.getElementById('sys-lip').innerHTML =  String(d.sysinfo.localIP);
+		document.getElementById('sys-rip').innerHTML =  String(d.sysinfo.remoteIP);
+		document.getElementById('sys-ut').innerHTML  =  String(d.sysinfo.uptime);
+		document.getElementById('sys-cl').innerHTML  =  String(d.sysinfo.CPUload)+'%';
+		document.getElementById('sys-cpc').innerHTML =  String(d.sysinfo.CPUpcore);
+		document.getElementById('sys-clc').innerHTML =  String(d.sysinfo.CPUlcore);
+		document.getElementById('sys-cf').innerHTML  =  String(d.sysinfo.CPUfreq)+'GHz';
+		document.getElementById('sys-cmf').innerHTML =  String(d.sysinfo.CPUmaxf)+'GHz';
+		document.getElementById('sys-ct').innerHTML  =  String(d.sysinfo.CPUtemp)+'°C';
+		document.getElementById('sys-su').innerHTML  =  String(d.sysinfo.swapuse)+'%';
+		document.getElementById('sys-ru').innerHTML  =  String(d.sysinfo.ramuse)+'%';
+
+		for (var i = 0; i < d.sysinfo.diskuse.length; i++) {
+			var disk = d.sysinfo.diskuse[i];
+			document.getElementById('sysinfotab').innerHTML += '<tr><td>'+disk[0]+'</td><td>'+disk[1]+'%</td><tr>';
+		}
+
+		//stats
+		var options = {
+			series: {
+				lines: {
+					lineWidth: 2
+				}
+			},
+			legend: {
+				position: "ne",
+				show: true,
+				backgroundColor: "white",
+				margin: 10
+			},
+			xaxis: {
+				mode: "time",
+				timeBase: "milliseconds"
+			}
+		};
+
+		var totaldata = [];
+		var posdata   = [];
+		var slvldata  = [];
+		var nlvldata  = [];
+		for (var i = d.stats.length - 1; i >= 0; i--) {
+			var p = d.stats[i];
+			var ts = p[0]*1000;
+			totaldata.push([ts,p[1]]);
+			posdata.push([ts,p[2]]);
+			slvldata.push([ts,p[3]]);
+			nlvldata.push([ts,p[4]]);
+		}
+
+		$.plot($("#graph-msgs"), [
+				{data:totaldata,label:"Total ",color: "black"},
+				{data:posdata,label:"With Pos ",color: "red"}
+			], options);
+		$.plot($("#graph-sn"), [
+				{data:slvldata,label:"Signal ",color: "blue"},
+				{data:nlvldata,label:"Noise ",color: "red"}
+			], options);
+		stop_spinner();
+	}
+	window.addEventListener("load", start_spinner);
+	$.getJSON('/cgi-bin/stats.py', parse);
+	freqgraph(3600);
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>HFDL Positions</title>
+	<link rel="stylesheet" href="src/lib/leaflet.min.css">
+	<script src="src/lib/leaflet.min.js"></script>
+</head>
+<body style="font-family: sans-serif;">
+<div id="map" style="position: absolute;top: 0px;bottom: 120px;left: 0px;right: 0px; float: left;"></div>
+<div style="position: absolute;bottom: 0px;left: 0px;right: 0px;height: 120px;overflow-x: auto;" id="legend">
+</div>
+
+<script>
+	var markers = [
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-blue.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-gold.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-red.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-green.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-orange.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-yellow.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-violet.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-grey.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		}),	
+		new L.Icon({
+			iconUrl: 'src/lib/images/marker-icon-2x-black.png',
+			shadowUrl: 'src/lib/images/marker-shadow.png',
+			iconSize: [25, 41],
+			iconAnchor: [12, 41],
+			popupAnchor: [1, -34],
+			shadowSize: [41, 41]
+		})
+	];
+
+	var map = L.map('map').setView([49, 11], 5);
+
+	L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+	//L.tileLayer('OSM/{z}/{x}/{y}.png', {
+	//	maxZoom: 8,
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+
+
+	fetch('/cgi-bin/mapdata.py').then((response) => response.json()).then(json => {
+		load(json);
+	});
+
+	function formatTime(t) {
+		var t = new Date(t*1000);
+	
+		var d = t.getDate();
+		var o = t.getMonth()+1;
+		var y = t.getFullYear();
+	
+		var h = t.getHours();
+		var m = t.getMinutes();
+		var s = t.getSeconds();
+	
+		if (d < 10) {d = "0"+String(d);} else {	d = String(d);}
+		if (o < 10) {o = "0"+String(o);} else { o = String(o);}
+		y = String(y-2000);
+	
+		if (h < 10) {h = "0"+String(h);} else { h = String(h);}
+		if (m < 10) {m = "0"+String(m);} else { m = String(m);}
+		if (s < 10) {s = "0"+String(s);} else { s = String(s);}
+	
+		return d+"."+o+"."+y+" - "+h+":"+m+":"+s;
+	}
+
+	function countObj(a) {
+		var i = 0;
+		for (x in a) {
+			i += 1;
+		}
+		return i;
+	}
+
+	function showfreq(clickel) {
+		var lels = document.getElementsByClassName('legendel');
+		for (var i = 0; i < lels.length; i++) {
+			var lel = lels[i];
+			if (lel.innerHTML != clickel.parentElement.innerHTML) {
+				lel.style.backgroundColor = "";
+			}
+		}
+		if (clickel.parentElement.style.backgroundColor == "gray") {
+			for (var i = 0; i < markerlist.length; i++) {
+				var marker = markerlist[i];
+				marker.addTo(map);
+			}
+			clickel.parentElement.style.backgroundColor = "";
+		} else {
+			for (var i = 0; i < markerlist.length; i++) {
+				var marker = markerlist[i];
+				if (Number(clickel.dataset.freq) == marker.options.freq) {
+					marker.addTo(map);
+				} else {
+					map.removeLayer(marker);
+				}
+			}
+			clickel.parentElement.style.backgroundColor = "gray";
+		}
+	}
+	var markerlist = [];
+	function load(d) {
+		var lasticao = false;
+		var pointlist = [];
+		var iconfreq = {};
+
+		for (var i = 0; i < d.length; i++) {
+			var p = d[i];
+			time = p[0];
+			icao = p[1];
+			gsna = p[2];
+			freq = p[3];
+			lat  = p[4];
+			lon  = p[5];
+
+			if (String(freq) in iconfreq) {
+				var markericon = iconfreq[String(freq)];
+			} else {
+				var idx = countObj(iconfreq) % markers.length;
+				var markericon = markers[idx];
+				iconfreq[String(freq)] = markericon;
+				document.getElementById('legend').innerHTML += '<div style="float: left;text-align: center;padding: 10px;" class="legendel"><img src="'+markericon.options.iconUrl+'" style="width:25px;" onclick="showfreq(this);" data-freq="'+String(freq)+'"><br>'+(freq/1e6).toFixed(3)+'MHz<br>'+gsna+'<br><span id="msgcount'+String(freq)+'"></span> Msgs</div>';
+			}
+			var cl = document.getElementById('msgcount'+String(freq));
+			count = Number(cl.innerHTML);
+			cl.innerHTML = String(count+1);
+
+			if (!icao) {
+				markerlist.push(L.marker([lat,lon], {icon: markericon,freq:freq}).addTo(map)
+					.bindPopup('<b>'+formatTime(time)+'</b><br>'+(freq/1e6).toFixed(3)+'MHz ('+gsna+')'));
+				continue;
+			}
+			if (lasticao == icao) {
+				pointlist.push([lat,lon]);
+				continue
+			}
+
+			markerlist.push(L.polyline(pointlist, {color: 'black',freq: freq}).addTo(map));
+			if (pointlist.length != 0) {
+				markerlist.push(L.marker(pointlist[pointlist.length-1], {icon: markericon,freq:freq}).addTo(map)
+					.bindPopup('<b>'+formatTime(time)+'</b><br>'+lasticao+'<br>'+(freq/1e6).toFixed(3)+'MHz ('+gsna+')'));
+			}
+			pointlist = [];
+			lasticao = icao;
+			pointlist.push([lat,lon]);
+		}
+		var featureGroup = L.featureGroup(markerlist).addTo(map);
+		map.fitBounds(featureGroup.getBounds(), {animate: false});
+	}
+</script>
+
+</body>
+</html>

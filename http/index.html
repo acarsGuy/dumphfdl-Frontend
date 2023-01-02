@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>dumpHFDL FrontEnd</title>
+	<link rel="icon" href="/favicon.ico">
+	<link rel="stylesheet" href="src/lib/leaflet.min.css">
+	<link rel="stylesheet" href="src/lib/leaflet.fullscreen.min.css">
+	<link rel="stylesheet" href="src/lib/jquery.modal.min.css">
+	<link rel="stylesheet" href="src/stylesheet.css">
+	<script src="src/spinner.min.js"></script>
+	<script src="src/lookups.js"></script>
+	<script src="src/lib/leaflet.min.js"></script>
+	<script src="src/lib/Leaflet.fullscreen.min.js"></script>
+	<script src="src/lib/jquery.min.js"></script>
+	<script src="src/lib/jquery.modal.min.js"></script>
+</head>
+<body>
+<img src="src/audio-off.png" onclick="changesound(this);" id="audiooo">
+<audio id="bp" src="src/bing.mp3"></audio>
+<div class="stats">
+	<pre id="stats_rate">----</pre> Msgs/min<br>
+	<pre id="stats_total">----</pre> Msgs
+</div>
+<h2 id="statusout">Error</h2>
+<details ontoggle="mainmap.invalidateSize();" style="margin: 25px;">
+	<summary>Position Map</summary>
+	<div id="mainmap"></div><br>
+</details>
+<div class="mainsel">
+	Live<input type="radio" name="mode" onclick="startlive();document.getElementById('smbutton').disabled = true;" checked autocomplete="off" id="livex">
+	Search<input type="radio" name="mode" onclick="cleartab();document.getElementById('smbutton').disabled = false;$('#searchmodal').modal();" autocomplete="off">
+	<button onclick="$('#searchmodal').modal();" disabled="true" id="smbutton">Search</button>
+</div>
+<table id="maintab">
+	<tr>
+		<th>Timestamp</th>
+		<th>Frequency</th>
+		<th>Type</th>
+		<th>SNR</th>
+		<th>SRC Addr</th>
+		<th>DST Addr</th>
+		<th>Flight</th>
+		<th>Reg</th>
+		<th></th>
+	</tr>
+</table>
+
+<div id="details" class="modal"></div>
+<div id="searchmodal" class="modal">
+	<h2>Search Data</h2>
+	<input type="text" name="fullsearch" id="fullsearch" placeholder="cpdlc"><button onclick="startsearch();" id="searchbutton">Search!</button>
+</div>
+
+<script src="src/script.js"></script>
+</body>
+</html>
